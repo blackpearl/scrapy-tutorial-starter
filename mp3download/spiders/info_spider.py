@@ -1,4 +1,5 @@
 import scrapy
+from ..items import Mp3DownloadItem
 
 
 class InfoSpider(scrapy.Spider):
@@ -11,22 +12,19 @@ class InfoSpider(scrapy.Spider):
     PAGE_INDEX = 1
 
     def parse(self, response):
-        self.logger.info("Sample Spider")
+        self.logger.info("Movie Data Fetching Spider")
         divs = response.xpath(
                 '//div[@class="botlist"]/div[@class="botitem"]/a/div/div[@class="info"]')
-        # stars = response.xpath(
-        #         '//div[@class="botlist"]/div[@class="botitem"]/a/div/div[@class="info"]/p[@class="description"]/text()[2]').get()
+        movie_info = Mp3DownloadItem()
+
         for element in divs:
-            movie_name = element.xpath('.//h1/text()').get()
-            stars = element.xpath('.//p[@class="description"]/text()[2]').get()
-            music = element.xpath('.//p[@class="description"]/text()[4]').get()
-            director = element.xpath('.//p[@class="description"]/text()[6]').get()
-            yield {
-                    'movie_name': movie_name,
-                    'starring': stars,
-                    'music': music,
-                    'director': director,
-            }
+            movie_info['movie_name'] = element.xpath('normalize-space(.//h1/text())').get()
+            movie_info['stars'] = element.xpath('normalize-space(.//p[@class="description"]/text()[2])').get()
+            movie_info['music'] = element.xpath('normalize-space(.//p[@class="description"]/text()[4])').get()
+            movie_info['director'] = element.xpath('normalize-space(.//p[@class="description"]/text()[6])').get()
+
+            yield movie_info
+
         # yield {
         #     'movie_name': response.xpath("//div[@class='info']/h1/text()").getall(),
         # }
