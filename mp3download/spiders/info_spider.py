@@ -5,19 +5,28 @@ class InfoSpider(scrapy.Spider):
     """ Get Info from the website """
 
     name = "info"
-    start_urls = ['https://www.masstamilan.io/aadai-songs-2']
+    start_urls = ['https://www.masstamilan.io/tag/A']
 
     PAGE_QUERY = '?page='
     PAGE_INDEX = 1
 
     def parse(self, response):
         self.logger.info("Sample Spider")
-        stars = response.xpath(
-                '//div[@class="botlist"]/div[@class="botitem"]/a/div/div[@class="info"]/p[@class="description"]/text()[2]').get()
-        yield {
-            # 'link': response.xpath("//h2[@class='ziparea normal']/a[@class='dlink anim'][1]/@href").get(),
-            'music': stars
-        }
+        divs = response.xpath(
+                '//div[@class="botlist"]/div[@class="botitem"]/a/div/div[@class="info"]')
+        # stars = response.xpath(
+        #         '//div[@class="botlist"]/div[@class="botitem"]/a/div/div[@class="info"]/p[@class="description"]/text()[2]').get()
+        for element in divs:
+            movie_name = element.xpath('.//h1/text()').get()
+            stars = element.xpath('.//p[@class="description"]/text()[2]').get()
+            music = element.xpath('.//p[@class="description"]/text()[4]').get()
+            director = element.xpath('.//p[@class="description"]/text()[6]').get()
+            yield {
+                    'movie_name': movie_name,
+                    'starring': stars,
+                    'music': music,
+                    'director': director,
+            }
         # yield {
         #     'movie_name': response.xpath("//div[@class='info']/h1/text()").getall(),
         # }
