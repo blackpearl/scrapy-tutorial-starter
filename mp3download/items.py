@@ -16,3 +16,4 @@ class Mp3DownloadItem(scrapy.Item):
     stars = scrapy.Field()
     music = scrapy.Field()
     director = scrapy.Field()
+    link = scrapy.Field()

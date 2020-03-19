@@ -8,32 +8,35 @@ class InfoSpider(scrapy.Spider):
     name = "info"
     start_urls = ['https://www.masstamilan.io/tag/A']
 
-    PAGE_QUERY = '?page='
-    PAGE_INDEX = 1
+    domain = 'https://www.masstamilan.io'
 
     def parse(self, response):
         self.logger.info("Movie Data Fetching Spider")
         divs = response.xpath(
-                '//div[@class="botlist"]/div[@class="botitem"]/a/div/div[@class="info"]')
+            '//div[@class="botlist"]/div[@class="botitem"]/a')
         movie_info = Mp3DownloadItem()
 
         for element in divs:
-            movie_info['movie_name'] = element.xpath('normalize-space(.//h1/text())').get()
-            movie_info['stars'] = element.xpath('normalize-space(.//p[@class="description"]/text()[2])').get()
-            movie_info['music'] = element.xpath('normalize-space(.//p[@class="description"]/text()[4])').get()
-            movie_info['director'] = element.xpath('normalize-space(.//p[@class="description"]/text()[6])').get()
+            movie_info['movie_name'] = element.xpath('normalize-space(.//div/div[@class="info"]/h1/text())').get()
+            movie_info['stars'] = element.xpath(
+                'normalize-space(.//div/div[@class="info"]/p[@class="description"]/text()[2])').get()
+            movie_info['music'] = element.xpath(
+                'normalize-space(.//div/div[@class="info"]/p[@class="description"]/text()[4])').get()
+            movie_info['director'] = element.xpath(
+                'normalize-space(.//div/div[@class="info"]/p[@class="description"]/text()[6])').get()
+            movie_link = response.urljoin(element.xpath(
+                'normalize-space(.//@href)').get())
 
-            yield movie_info
+            yield scrapy.Request(movie_link, callback=self.parse_movie, meta={'item': movie_info})
 
-        # yield {
-        #     'movie_name': response.xpath("//div[@class='info']/h1/text()").getall(),
-        # }
-        #
-        # if InfoSpider.PAGE_INDEX <= 5:
-        #     InfoSpider.PAGE_INDEX += 1
-        #
-        # next_page = f'{InfoSpider.start_urls[0]}{InfoSpider.PAGE_QUERY}{InfoSpider.PAGE_INDEX}'
-        #
-        # if next_page is not None:
-        #     next_page = response.urljoin(next_page)
-        #     yield scrapy.Request(next_page, callback=self.parse)
+        next_page = response.xpath('//nav[@class="pagination"]/span[@class="next"]/a/@href').get()
+
+        if next_page is not None:
+            next_page = response.urljoin(next_page)
+            yield scrapy.Request(next_page, callback=self.parse)
+
+    def parse_movie(self, response):
+        movie_full = response.meta['item']
+        downloader = response.xpath("//h2[@class='ziparea normal']/a[@class='dlink anim'][1]/@href").get()
+        movie_full['link'] = self.domain + downloader
+        return movie_full
