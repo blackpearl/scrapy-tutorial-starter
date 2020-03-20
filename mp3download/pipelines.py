@@ -18,7 +18,6 @@ class Mp3DownloadPipeline(object):
         self.curr = self.conn.cursor()
 
     def store_db(self, item):
-
         self.curr.execute("""insert into movie_data (movie_name,stars,music,director,link,info)values (?,?,?,?,?,
         "default")""", (
             item['movie_name'],
@@ -30,8 +29,6 @@ class Mp3DownloadPipeline(object):
 
         self.conn.commit()
 
-
     def process_item(self, item, spider):
-
         self.store_db(item)
         return item

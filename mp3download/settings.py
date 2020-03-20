@@ -14,6 +14,9 @@ BOT_NAME = 'mp3download'
 SPIDER_MODULES = ['mp3download.spiders']
 NEWSPIDER_MODULE = 'mp3download.spiders'
 
+#LOG LEVEL
+LOG_LEVEL = 'INFO'
+# PROXY_POOL_ENABLED = True
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'mp3download (+http://www.yourdomain.com)'
@@ -27,9 +30,9 @@ ROBOTSTXT_OBEY = True
 # Configure a delay for requests for the same website (default: 0)
 # See https://docs.scrapy.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
-#DOWNLOAD_DELAY = 3
+#DOWNLOAD_DELAY = 1
 # The download delay setting will honor only one of:
-#CONCURRENT_REQUESTS_PER_DOMAIN = 16
+CONCURRENT_REQUESTS_PER_DOMAIN = 32
 #CONCURRENT_REQUESTS_PER_IP = 16
 
 # Disable cookies (enabled by default)
@@ -55,7 +58,12 @@ ROBOTSTXT_OBEY = True
 #DOWNLOADER_MIDDLEWARES = {
 #    'mp3download.middlewares.Mp3DownloadDownloaderMiddleware': 543,
 #}
-
+DOWNLOADER_MIDDLEWARES = {
+    'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
+    'scrapy_user_agents.middlewares.RandomUserAgentMiddleware': 400,
+    # 'scrapy_proxy_pool.middlewares.ProxyPoolMiddleware': 610,
+    # 'scrapy_proxy_pool.middlewares.BanDetectionMiddleware': 620,
+}
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html
 #EXTENSIONS = {
